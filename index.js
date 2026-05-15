@@ -14,7 +14,10 @@ const sessionRoutes = require('./routes/session.route');
 const adminRoutes = require('./routes/admin.route');
 const progressRoutes = require('./routes/progress.route');
 const messageRoutes = require('./routes/message.route');
-const aimessageRoutes = require('./routes/aimessage.route'); 
+const aimessageRoutes = require('./routes/aimessage.route');
+const productRoutes = require('./routes/product.route');
+const cartRoutes = require('./routes/cart.route');
+const notificationRoutes = require('./routes/notification.route');
 app.use(cors({
   origin: [
     "http://localhost:5173",
@@ -36,7 +39,10 @@ app.use('/api/sessions', sessionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/chat', aimessageRoutes); 
+app.use('/api/chat', aimessageRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 

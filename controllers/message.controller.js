@@ -1,6 +1,7 @@
 const Message = require('../models/message.model');
 const User = require('../models/user.model');
 const TrainerTrainee = require('../models/trainerTrainee.model');
+const Notification = require('../models/notification.model');
 
 // POST /api/messages
 const sendMessage = async (req, res) => {
@@ -17,7 +18,11 @@ const sendMessage = async (req, res) => {
       return res.status(400).json({ message: 'You cannot message yourself' });
     }
 
-    const receiver = await User.findById(receiverId);
+    const [sender, receiver] = await Promise.all([
+      User.findById(senderId).select('firstName lastName'),
+      User.findById(receiverId)
+    ]);
+
     if (!receiver) {
       return res.status(404).json({ message: 'Receiver not found' });
     }
@@ -40,6 +45,22 @@ const sendMessage = async (req, res) => {
       { path: 'senderId', select: 'firstName lastName role' },
       { path: 'receiverId', select: 'firstName lastName role' }
     ]);
+
+    // ── Create a notification for the receiver ────────────────────────────
+    const senderName = sender
+      ? `${sender.firstName} ${sender.lastName}`
+      : 'Someone';
+
+    await Notification.create({
+      userId: receiverId,
+      type: 'message',
+      title: `💬 New message from ${senderName}`,
+      body: content.trim().length > 80
+        ? content.trim().slice(0, 80) + '…'
+        : content.trim(),
+      relatedId: message._id
+    });
+    // ─────────────────────────────────────────────────────────────────────
 
     res.status(201).json({ message: 'Message sent', data: populated });
   } catch (error) {
