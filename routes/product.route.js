@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth.middleware');
 const checkRole = require('../middleware/checkRole.middleware');
+const { upload } = require('../config/cloudinary');
 const {
     createProduct,
     getProducts,
@@ -10,13 +11,15 @@ const {
     deleteProduct
 } = require('../controllers/product.controller');
 
-const adminOnly  = [auth, checkRole('admin')];
-const anyLoggedIn = [auth]; // trainers, trainees, and admins can browse
+const adminOnly   = [auth, checkRole('admin')];
+const anyLoggedIn = [auth];
 
-router.get('/',      anyLoggedIn, getProducts);
-router.get('/:id',   anyLoggedIn, getProductById);
-router.post('/',     adminOnly,   createProduct);
-router.put('/:id',   adminOnly,   updateProduct);
-router.delete('/:id', adminOnly,  deleteProduct);
+// ADD YOUR 
+
+router.get('/',       anyLoggedIn,                          getProducts);
+router.get('/:id',    anyLoggedIn,                          getProductById);
+router.post('/',      adminOnly,   upload.single('image'),  createProduct);
+router.put('/:id',    adminOnly,   upload.single('image'),  updateProduct);
+router.delete('/:id', adminOnly,                            deleteProduct);
 
 module.exports = router;
