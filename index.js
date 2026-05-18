@@ -39,7 +39,7 @@ app.use('/api/sessions', sessionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/chat', aimessageRoutes);
+// app.use('/api/chat', aimessageRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/notifications', notificationRoutes);
