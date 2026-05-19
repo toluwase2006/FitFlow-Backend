@@ -24,7 +24,7 @@ app.use(cors({
     "http://localhost:5174",
     "https://fitflow-o4hx.onrender.com"
   ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   credentials: true,
 }));
 
