@@ -8,7 +8,8 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
+// Products storage (existing)
+const productStorage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: 'fitflow/products',
@@ -17,9 +18,17 @@ const storage = new CloudinaryStorage({
     },
 });
 
-const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+// Avatar storage (new)
+const avatarStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: 'fitflow/avatars',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 300, height: 300, crop: 'fill', gravity: 'face', quality: 'auto' }],
+    },
 });
 
-module.exports = { cloudinary, upload };
+const upload        = multer({ storage: productStorage, limits: { fileSize: 5 * 1024 * 1024 } });
+const uploadAvatar  = multer({ storage: avatarStorage,  limits: { fileSize: 3 * 1024 * 1024 } });
+
+module.exports = { cloudinary, upload, uploadAvatar }; 
