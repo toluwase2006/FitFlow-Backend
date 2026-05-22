@@ -21,6 +21,7 @@ const notificationRoutes = require('./routes/notification.route');
 app.use(cors({
   origin: [
     "http://localhost:5173",
+    "http://localhost:4173",
     "http://localhost:5174",
     "https://fitflow-o4hx.onrender.com"
   ],
