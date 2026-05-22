@@ -1,13 +1,12 @@
-//   const express = require('express');
-// const Groq = require('groq-sdk');
-// const Message = require('../models/Message.model');
-// const { sendMessage, getMessage } = require('../controllers/aimessage.controller');
+const express = require('express');
+const Message = require('../models/Message.model');
+const { sendMessage, getMessage } = require('../controllers/aimessage.controller');
 
-// const router = express.Router();
+const router = express.Router();
 
 
-// router.post('/', sendMessage);
+router.post('/', sendMessage);
 
-// router.get('/history', getMessage);
+router.get('/history', getMessage);
 
-// module.exports = router;
+module.exports = router;
