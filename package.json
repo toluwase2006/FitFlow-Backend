@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/fitnessAppliction/FitnessAppBackend#readme",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "bcrypt": "^6.0.0",
     "brcypt": "^1.0.1",
     "cloudinary": "^1.41.3",
