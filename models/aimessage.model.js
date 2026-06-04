@@ -1,4 +1,4 @@
-    const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 const aimessageSchema = new mongoose.Schema({
   trainee_id: { type: String, required: true },

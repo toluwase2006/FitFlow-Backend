@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
-dotenv.config(); // ← must be FIRST before anything reads env vars
+dotenv.config();
+
 
 const express = require('express');
 const app = express();

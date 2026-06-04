@@ -1,18 +1,28 @@
 // aimessage.controller.js
-const Groq = require('groq-sdk');
+const OpenAI = require("openai");
 const Message = require('../models/aimessage.model');
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+let client;
+
+const getClient = () => {
+  if (!client) {
+    client = new OpenAI({
+      apiKey: process.env.NVIDIA_API_KEY,
+      baseURL: "https://integrate.api.nvidia.com/v1",
+    });
+  }
+  return client;
+};
 
 const sendMessage = async (req, res) => {
   const { message, userId } = req.body;
 
   if (!message?.trim() || !userId) {
-    return res.status(400).json({ error: 'message and userId are required' });
+    return res.status(400).json({ error: "message and userId required" });
   }
 
   try {
-    await Message.create({ trainee_id: userId, role: 'user', content: message });
+    await Message.create({ trainee_id: userId, role: "user", content: message });
 
     const history = await Message.find({ trainee_id: userId })
       .sort({ createdAt: -1 })
@@ -24,12 +34,11 @@ const sendMessage = async (req, res) => {
       content: m.content,
     }));
 
-    const response = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      max_tokens: 1024,
+    const response = await getClient().chat.completions.create({
+      model: "meta/llama-3.1-70b-instruct",
       messages: [
         {
-          role: 'system',
+          role: "system",
           content: `You are FitFlow AI, a fitness-only assistant.
 You help users with workouts, exercise form, nutrition, recovery, and training programming.
 If a user asks about anything unrelated to fitness, health, or nutrition,
@@ -39,20 +48,27 @@ or any other off-topic subject, even if the user insists.
 For injury or medical questions, always recommend they consult a doctor or physio.`,
         },
         ...formattedHistory,
+        { role: "user", content: message },
       ],
+      max_tokens: 1024,
     });
 
     const reply = response.choices[0].message.content;
 
-    await Message.create({ trainee_id: userId, role: 'assistant', content: reply });
+    await Message.create({
+      trainee_id: userId,
+      role: "assistant",
+      content: reply,
+    });
 
     res.json({ reply });
-
   } catch (err) {
-    console.error('Chat error:', err.message || err);
-    res.status(500).json({ error: err.message || 'Failed to get AI response' });
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 };
+
+
 
 const getMessage = async (req, res) => {
   const { userId } = req.query;
