@@ -54,29 +54,24 @@ const sendMessage = async (req, res) => {
 
     const userContext = `User: ${user ? `${user.firstName} ${user.lastName} (${user.role})` : 'Unknown'}\nBio: ${user?.bio || 'N/A'}\nProgress summary: ${progressSummary}`;
 
+    // detect if user asked for pidgin or provided language
+    const wantsPidgin = /\bpidgin\b|\bspeak pidgin\b|\bpidgin english\b/i.test(message) || req.body.language === 'pidgin';
+    const isGreeting = /^\s*(hi|hello|hey|hey there|good morning|good afternoon|good evening)\b[!.,\s]?/i.test(message);
+
+    const languageInstruction = wantsPidgin
+      ? 'When replying, translate content into West African Pidgin English while preserving the exact section headings and structure.'
+      : 'Respond in clear, simple English.';
+
     const systemPrompt = `
 You are FitFlow AI, a professional fitness coach. Use the provided user context to personalize responses.
 
-RULES:
-- Always prioritize safety and avoid medical advice; recommend consulting a professional when needed.
-- Tailor coaching to the user's recent progress and logged sessions.
-- Suggest achievable next steps and celebrate improvements.
-- If the user hasn't logged sessions, encourage gentle onboarding and simple starting actions.
-
-RESPONSE FORMAT (STRICT):
-Overview:
-- 1–2 short lines
-
-Key Points:
-- Bullet point 1
-- Bullet point 2
-
-Action Plan (if applicable):
-- Step 1
-- Step 2
-
-Tips:
-- Tip 1
+MANDATES:
+- ALWAYS include the following sections, in this exact order and spelled exactly as shown: Overview:, Key Points:, Action Plan:, Tips:.
+- Separate each section by a blank line. Use a leading dash and a space for bullet lines (e.g. "- Point").
+- Keep lines short; each idea must be on its own line. Do not produce long paragraphs.
+- Never include raw internal IDs. You may summarize internal data but do not print database identifiers.
+- If the user's message is a greeting, begin the response with a short, friendly greeting.
+- ${languageInstruction}
 
 User Context (do not reveal internal IDs):
 ${userContext}
@@ -92,7 +87,16 @@ ${userContext}
       max_tokens: 1024,
     });
 
-    const reply = response.choices[0].message.content;
+    let reply = response.choices[0].message.content || '';
+
+    // Ensure greeting when user greeted
+    if (isGreeting) {
+      const hasGreeting = /^\s*(hi|hello|hey|howdy|hiya|good morning|good afternoon|good evening)/i.test(reply);
+      if (!hasGreeting) {
+        const greetingText = wantsPidgin ? 'How far! ' : 'Hey! ';
+        reply = `${greetingText}\n\n${reply}`;
+      }
+    }
 
     await Message.create({
       trainee_id: userId,
